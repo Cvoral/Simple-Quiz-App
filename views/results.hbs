@@ -1,0 +1,15 @@
+<h1>{{quiz.title}} - Results</h1>
+<p>You got {{correct}} out of {{total}} correct.</p>
+
+{{#if (eq correct total)}}
+<p> Perfect score!</p>
+{{else if (gt correct (div total 2))}}
+<p> Not bad, try again for a better score!</p>
+{{else}}
+<p> Oof, Keep practicing</p>
+{{/if}}
+
+<a href="/">Back to Quizzes</a>
+<script>
+    localStorage.removeItem('quiz_timer_remaining');
+</script>

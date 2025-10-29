@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="home-container">
+        <h1>Choose a Quiz</h1>
+        
+        <div class="quizzes-list">
+            {{#each quizzes}}
+            <div class="quiz-item">
+                <a href="/quiz/{{@index}}">{{this.title}}</a>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</body>
+</html>

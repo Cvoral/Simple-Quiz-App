@@ -1,0 +1,95 @@
+<div class="quiz-content">
+    <h2>{{quiz.title}}</h2>
+    <p>Question {{inc qIndex}} of {{quiz.questions.length}}</p>
+
+    <form action="/quiz/{{quizIndex}}/next" method="POST" id="quizForm">
+        <p>{{question.question}}</p>
+
+        {{#each question.answers}}
+        <label>
+            <input type="radio" name="answer" value="{{@key}}" {{#if (eq ../answers.[../qIndex] @key)}}checked{{/if}}>
+            {{@key}}: {{this}}
+        </label><br>
+        {{/each}}
+
+        <input type="hidden" name="qIndex" value="{{qIndex}}">
+        <input type="hidden" name="answers" value='{{{json answers}}}'>
+        <input type="hidden" name="quizData" value="{{encodedQuiz}}">
+
+        <!-- PROPERLY HIDDEN BUTTONS - Make sure they don't show -->
+        <div style="display: none;">
+            {{#if (gt qIndex 0)}}
+            <button type="submit" name="action" value="previous" id="hiddenPrevious">Previous</button>
+            {{/if}}
+            {{#if (lt qIndex (sub quiz.questions.length 1))}}
+            <button type="submit" name="action" value="next" id="hiddenNext">Next</button>
+            {{else}}
+            <button type="submit" name="action" value="submit" id="hiddenSubmit">Submit Quiz</button>
+            {{/if}}
+        </div>
+    </form>
+</div>
+
+<!-- ONLY THESE VISIBLE BUTTONS SHOULD SHOW -->
+<div class="quiz-nav-container">
+    {{#if (gt qIndex 0)}}
+    <button type="button" onclick="document.getElementById('hiddenPrevious').click()"
+        class="nav-button">Previous</button>
+    {{/if}}
+
+    {{#if (lt qIndex (sub quiz.questions.length 1))}}
+    <button type="button" onclick="document.getElementById('hiddenNext').click()" class="nav-button">Next</button>
+    {{else}}
+    <button type="button" onclick="document.getElementById('hiddenSubmit').click()" class="submit-button">Submit
+        Quiz</button>
+    {{/if}}
+</div>
+
+<div class="retake-quiz-container">
+    <form action="/quiz/{{quizIndex}}" method="GET" id="retakeForm">
+        <button type="submit" class="nav-button" onclick="resetTimer()">Retake Quiz</button>
+    </form>
+</div>
+
+<div class="timer-container" id="timer">Time left: <span id="time">480</span> seconds</div>
+
+<script>
+    const TOTAL_TIME = 480;
+    const timerDisplay = document.getElementById('time');
+
+    let timeLeft = parseInt(localStorage.getItem('quiz_timer_remaining'), 10);
+
+    if (isNaN(timeLeft) || timeLeft <= 0) {
+        timeLeft = TOTAL_TIME;
+        localStorage.setItem('quiz_timer_remaining', timeLeft);
+    }
+
+    timerDisplay.textContent = timeLeft;
+
+    const interval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        localStorage.setItem('quiz_timer_remaining', timeLeft);
+
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            localStorage.removeItem('quiz_timer_remaining');
+            document.getElementById('hiddenSubmit').click();
+        }
+    }, 1000);
+
+    function resetTimer() {
+        clearInterval(interval);
+        localStorage.removeItem('quiz_timer_remaining');
+    }
+
+    if ({{ qIndex }} === 0) {
+        localStorage.removeItem('quiz_timer_remaining');
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (timeLeft <= 0) {
+            localStorage.removeItem('quiz_timer_remaining');
+        }
+    });
+</script>
